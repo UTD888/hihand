@@ -4,25 +4,19 @@
   <meta charset="UTF-8">
   <title>High Hand Bonus</title>
   <style>
-    .history-img {
-    height: 32px;
-    margin-right: 6px;
-    vertical-align: middle;
-    border-radius: 4px;
-  }
-    body { background: #111; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+      body { background: #111; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
     .admin-bar { margin-bottom: 20px; }
     button { padding: 8px 14px; margin: 6px; font-size: 16px; }
     .hidden { display: none; }
-    .bonus-section { max-width: 600px; margin: auto; text-align: left; background: #222; padding: 20px; border-radius: 10px; }
-    .bonus-section h2 { text-align: center; }
+    .bonus-section { max-width: 600px; margin: auto; text-align: left; background: #222; padding: 20px; border-radius: 10px; font-size: 28px;}
+    .bonus-section h2,h1 { text-align: center; }
     .bonus-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #444; }
     #history-container { margin-top: 20px; display: none; }
-    #history-list { font-size: 14px; text-align: left; padding: 10px; background: #1a1a1a; border-radius: 8px; max-width: 600px; margin: auto; }
+    #history-list { font-size: 20px; text-align: left; padding: 10px; background: #1a1a1a; border-radius: 8px; max-width: 600px; margin: auto; }
     .history-item { padding: 6px 0; border-bottom: 1px solid #444; }
-    input, select { padding: 6px; margin: 4px; }
+    input, select { padding: 6px; margin: 4px;}
     #reward-form { background: #222; padding: 20px; margin-top: 20px; border-radius: 10px; max-width: 400px; margin-left: auto; margin-right: auto; }
-    #bonus-status { text-align: center; margin-top: 10px; font-size: 13px; color: gray; }
+    #bonus-status { text-align: center; margin-top: 10px; font-size: 18px; color: gray; }
   </style>
 </head>
 <body>
@@ -43,7 +37,7 @@
   <!-- Bonus Display Section -->
   <div class="bonus-section">
     <div style="text-align: center;"><img src="luxu-logo.png" style="width: 25%;"></div>
-    <h2>🎉 Bonus High Hand</h2>
+    <h1>🎉 Bonus High Hand</h1>
     <div class="bonus-row"><strong>Total Bonus:</strong> <span id="total-bonus">฿ -</span></div>
     <div class="bonus-row"><strong>Royal Flush (75%):</strong> <span id="royal-flush">฿ -</span></div>
     <div class="bonus-row"><strong>Straight Flush (45%):</strong> <span id="straight-flush">฿ -</span></div>
