@@ -9,7 +9,7 @@
     button { padding: 8px 14px; margin: 6px; font-size: 16px; }
     .hidden { display: none; }
     .bonus-section { max-width: 600px; margin: auto; text-align: left; background: #222; padding: 20px; border-radius: 10px; font-size: 28px;}
-    .bonus-section h2,h1 { text-align: center; }
+    .bonus-section h2,h1 { text-align: center;}
     .bonus-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #444; }
     #history-container { margin-top: 20px; display: none; }
     #history-list { font-size: 20px; text-align: left; padding: 10px; background: #1a1a1a; border-radius: 8px; max-width: 600px; margin: auto; }
@@ -17,6 +17,33 @@
     input, select { padding: 6px; margin: 4px;}
     #reward-form { background: #222; padding: 20px; margin-top: 20px; border-radius: 10px; max-width: 400px; margin-left: auto; margin-right: auto; }
     #bonus-status { text-align: center; margin-top: 10px; font-size: 18px; color: gray; }
+    @media (max-width: 600px) {
+  body {
+    padding: 10px;
+    font-size: 18px;
+  }
+  .bonus-section {
+    padding: 14px;
+    font-size: 22px;
+  }
+  .bonus-row {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 20px;
+  }
+  .bonus-section h1 {
+    font-size: 26px;
+  }
+  #history-list {
+    font-size: 16px;
+  }
+  button {
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
   </style>
 </head>
 <body>
