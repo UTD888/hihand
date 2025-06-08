@@ -1,304 +1,364 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>High Hand Bonus</title>
+  <title>Bonus High Hand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-      body { background: #111; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-    .admin-bar { margin-bottom: 20px; }
-    button { padding: 8px 14px; margin: 6px; font-size: 16px; }
-    .hidden { display: none; }
-    .bonus-section { max-width: 600px; margin: auto; text-align: left; background: #222; padding: 20px; border-radius: 10px; font-size: 28px;}
-    .bonus-section h2,h1 { text-align: center;}
-    .bonus-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #444; }
-    #history-container { margin-top: 20px; display: none; }
-    #history-list { font-size: 20px; text-align: left; padding: 10px; background: #1a1a1a; border-radius: 8px; max-width: 600px; margin: auto; }
-    .history-item { padding: 6px 0; border-bottom: 1px solid #444; }
-    input, select { padding: 6px; margin: 4px;}
-    #reward-form { background: #222; padding: 20px; margin-top: 20px; border-radius: 10px; max-width: 400px; margin-left: auto; margin-right: auto; }
-    #bonus-status { text-align: center; margin-top: 10px; font-size: 18px; color: gray; }
-    @media (max-width: 600px) {
   body {
-    padding: 10px;
-    font-size: 18px;
-  }
-  .bonus-section {
-    padding: 14px;
-    font-size: 22px;
-  }
-  .bonus-row {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    margin: 0;
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    font-size: 20px;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
   }
-  .bonus-section h1 {
-    font-size: 26px;
-  }
-  #history-list {
-    font-size: 16px;
-  }
-  button {
-    font-size: 16px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
 
-  </style>
+  .container {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  h1 {
+    color: #007bff;
+  }
+
+  .stat {
+    font-size: clamp(24px, 5vw, 70px); /* responsive */
+    margin-bottom: 15px;
+  }
+
+  .highlight {
+    color: #d9534f;
+    font-weight: bold;
+  }
+
+  .btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 5px;
+    font-size: 16px;
+  }
+
+  .btn:hover {
+    background: #0056b3;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .history-entry {
+    border-top: 1px solid #ccc;
+    padding: 10px 0;
+    text-align: left;
+    font-size: 16px;
+  }
+
+  #auth-section {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 20px auto;
+  }
+
+  .admin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px auto;
+  }
+
+  @media (max-width: 600px) {
+    .stat span {
+      font-size: 30px !important;
+    }
+    #royalBonus, #straightBonus, #quadsBonus {
+      font-size: 24px !important;
+    }
+    .btn {
+      width: 100%;
+      font-size: 18px;
+    }
+  }
+</style>
+
 </head>
 <body>
+    
+  <div class="container">
+    <img src="luxu-logo.png" width="25%;">
+     
+<div class="stat"><span>Bonus Hight Hand</span><br><span id="totalBonus" class="highlight">Loading...</span></div>
+<div class="stat"><span style="font-size: 50px;">Royal Flush (75%)</span><br><span id="royalBonus" style="font-size: 50px;font-weight: bold;color: #098633;">Loading...</span></div>
+<div class="stat"><span style="font-size: 50px;">Straight Flush (45%)</span><br><span id="straightBonus" style="font-size: 50px;font-weight: bold;color: #098633;">Loading...</span></div>
+<div class="stat"><span style="font-size: 50px;">Quads (20%)</span><br><span id="quadsBonus" style="font-size: 50px;font-weight: bold;color: #098633;">Loading...</span></div>
 
-  <!-- Admin Bar -->
-  <div class="admin-bar">
-    <div id="auth-section">
-      <input type="email" id="email" placeholder="Email">
-      <input type="password" id="password" placeholder="Password">
-      <button id="login-btn">Login</button>
-    </div>
-    <div id="admin-buttons" class="hidden">
-      <button id="logout-btn">Logout</button>
-      <button id="manage-btn" onclick="toggleRewardForm()">จัดการจ่ายรางวัล</button>
-    </div>
+<div id="auth-section" class="admin hidden">
+  <input type="email" id="email" placeholder="อีเมล">
+  <input type="password" id="password" placeholder="รหัสผ่าน">
+  <button class="btn" id="loginBtn">เข้าสู่ระบบ</button>
+</div>
+
+
+<div id="app-section" class="hidden">
+  <button class="btn" onclick="showPayoutForm()">📤 จ่ายรางวัล</button>
+  <button class="btn" onclick="logout()" style="background:#dc3545;">ออกจากระบบ</button>
+  <div id="payoutForm" class="hidden">
+    <h3>ฟอร์มการจ่ายรางวัล</h3>
+    <input type="text" id="playerName" placeholder="ชื่อผู้เล่น">
+    <select id="handType">
+      <option value="royal">Royal Flush</option>
+      <option value="straight">Straight Flush</option>
+      <option value="quads">Quads</option>
+    </select>
+    <button class="btn" onclick="confirmPayout()">ยืนยัน</button>
+    <button class="btn" onclick="cancelPayout()">ยกเลิก</button>
+    <div id="payoutMsg" class="stat"></div>
   </div>
 
-  <!-- Bonus Display Section -->
-  <div class="bonus-section">
-    <div style="text-align: center;"><img src="luxu-logo.png" style="width: 25%;"></div>
-    <h1>🎉 Bonus High Hand</h1>
-    <div class="bonus-row"><strong>Total Bonus:</strong> <span id="total-bonus">฿ -</span></div>
-    <div class="bonus-row"><strong>Royal Flush (75%):</strong> <span id="royal-flush">฿ -</span></div>
-    <div class="bonus-row"><strong>Straight Flush (45%):</strong> <span id="straight-flush">฿ -</span></div>
-    <div class="bonus-row"><strong>4 of a Kind (20%):</strong> <span id="four-kind">฿ -</span></div>
-    <div id="bonus-status">⏳ กำลังคำนวณโบนัส...</div>
-    <div style="margin-top: 10px;">
-      <button onclick="toggleHistory()">🔁 Toggle History</button>
-    </div>
-    <div class="bonus-row" style="margin-top: 20px;">
-      <strong>วิธีการจ่ายรางวัล:</strong>
-    </div>
-    <div style="font-size: 14px; padding: 6px 10px; line-height: 1.6;">
-      - เริ่มต้น Total Bonus ที่ 5,000 บาท<br>
-      - หากจ่ายโบนัสแล้วเหลือน้อยกว่า 5,000 → รีเซ็ตเป็น 5,000<br>
-      - หากยังมากกว่า 5,000 → เพิ่ม 500 ทุก 24 ชั่วโมงนับจากการจ่ายครั้งล่าสุด<br>
-      - Hight Hand 1 รางวัล / วันเท่านั้น
-    </div>
-  </div>
-
-  <!-- Reward Form (no image) -->
-  <div id="reward-form" class="hidden">
-    <h3>📤 ฟอร์มจ่ายรางวัล</h3>
-    <input type="text" id="reward-player" placeholder="ชื่อผู้เล่น"><br>
-    <input type="date" id="reward-date"><br>
-    <select id="reward-type">
-      <option value="Royal Flush">Royal Flush (75%)</option>
-      <option value="Straight Flush">Straight Flush (45%)</option>
-      <option value="4 of a Kind">4 of a Kind (20%)</option>
-    </select><br>
-    <button onclick="submitReward()">✅ ยืนยันการจ่าย</button>
-    <button onclick="cancelRewardForm()">❌ ยกเลิก</button>
-
-  </div>
-
-  <!-- History Section -->
-  <div id="history-container">
-    <h3>📸 ประวัติการจ่ายรางวัล</h3>
-    <div id="history-list"></div>
-  </div>
+</div>
+<button class="btn" onclick="toggleHistory()">📜 ดู/ซ่อน ประวัติการจ่าย</button>
+<div id="historyContainer" class="hidden">
+  <h3>📜 ประวัติการจ่ายรางวัล</h3>
+  <div id="historyList">Loading...</div>
+</div>
 
   <script type="module">
-    window.cancelRewardForm = function () {
-  document.getElementById("reward-form").classList.add("hidden");
-};
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    limit,
+    getDocs,
+    serverTimestamp,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ✅ เพิ่มบรรทัดนี้
-// ให้คำนวณโบนัสเสมอเมื่อโหลดหน้า แม้ไม่ login
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtxMJQMwzhZz9QtiHuBlF4L58jRKgI90A",
+    authDomain: "highthand-f9bc6.firebaseapp.com",
+    projectId: "highthand-f9bc6",
+    storageBucket: "highthand-f9bc6.firebasestorage.app",
+    messagingSenderId: "60442905889",
+    appId: "1:60442905889:web:6d1f9f25a03e0a6a5dc260",
+    measurementId: "G-G2CN0QMEJB"
+  };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const db = getFirestore();
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAtxMJQMwzhZz9QtiHuBlF4L58jRKgI90A",
-      authDomain: "highthand-f9bc6.firebaseapp.com",
-      projectId: "highthand-f9bc6",
-      storageBucket: "highthand-f9bc6.appspot.com",
-      messagingSenderId: "60442905889",
-      appId: "1:60442905889:web:6d1f9f25a03e0a6a5dc260",
-      measurementId: "G-G2CN0QMEJB"
-    };
+    const BONUS_RATES = { royal: 0.75, straight: 0.45, quads: 0.2 };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
-    const db = getFirestore();
+    refreshStats();
+    loadHistory();
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(err => alert("Login error: " + err.message));
+});
 
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-    const authSection = document.getElementById("auth-section");
-    const adminButtons = document.getElementById("admin-buttons");
-    const rewardForm = document.getElementById("reward-form");
-    const historyList = document.getElementById("history-list");
-    const bonusStatus = document.getElementById("bonus-status");
+ onAuthStateChanged(auth, async user => {
+  if (user) {
+    document.getElementById("auth-section").classList.add("hidden");
+    document.getElementById("app-section").classList.remove("hidden");
+    window.currentUser = user;
+    await refreshStats();  // 🟢 เรียกตรงนี้อีกครั้ง
+    await loadHistory();
+  } else {
+    document.getElementById("auth-section").classList.remove("hidden");
+    document.getElementById("app-section").classList.add("hidden");
+    await refreshStats();  // 🟢 เรียกตรงนี้ด้วย เพื่อแสดงยอดแม้ไม่ล็อกอิน
+    await loadHistory();
+  }
+});
 
-    let bonusInterval = null;
 
-    loginBtn.onclick = async () => {
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        alert("Login failed: " + error.message);
-      }
-    };
+    window.logout = () => signOut(auth);
 
-    logoutBtn.onclick = async () => {
-      await signOut(auth);
-    };
+  async function refreshStats() {
+  const statRef = doc(db, "stats", "highhand");
+  const snap = await getDoc(statRef);
 
-    onAuthStateChanged(auth, user => {
-      const isLoggedIn = !!user;
-      authSection.classList.toggle("hidden", isLoggedIn);
-      adminButtons.classList.toggle("hidden", !isLoggedIn);
-      if (isLoggedIn) calculateBonus();
-    });
+  let bonus = 5000;
+  let last = null;
 
-    window.toggleHistory = function () {
-      const box = document.getElementById("history-container");
-      box.style.display = box.style.display === "none" ? "block" : "none";
-    };
+  if (snap.exists()) {
+    const data = snap.data();
+    bonus = data.totalBonus ?? 5000;
+    last = data.latestPayoutTimestamp?.toDate();
+  }
 
-    onSnapshot(query(collection(db, "highhand_rewards"), orderBy("timestamp", "desc")), (snapshot) => {
-      loadHistory(snapshot);
-    });
+  // ✅ ถ้า bonus < 5000 ให้ตั้งเป็น 5000 ทันที
+  if (bonus < 5000) bonus = 5000;
 
-    function updateBonusStatus(lastTime, total) {
-      if (bonusInterval) clearInterval(bonusInterval);
-      bonusInterval = setInterval(() => {
-        const msPassed = new Date() - lastTime;
-        const nextMs = 24 * 60 * 60 * 1000 - (msPassed % (24 * 60 * 60 * 1000));
-        const nextH = Math.floor(nextMs / (1000 * 60 * 60));
-        const nextM = Math.floor((nextMs % (1000 * 60 * 60)) / (1000 * 60));
-        const nextS = Math.floor((nextMs % (1000 * 60)) / 1000);
-        bonusStatus.innerText = `📈 เพิ่มโบนัสล่าสุดแล้ว / เพิ่มอีกครั้งใน ${nextH} ชม. ${nextM} นาที ${nextS} วินาที`;
-      }, 1000);
-    }
+  window.baseBonus = bonus;
+  window.lastPayoutTime = last || new Date();
 
-    function loadHistory(snap) {
-      historyList.innerHTML = "⏳ กำลังโหลด...";
-      let html = "";
-      let total = 5000;
-      let lastTime = null;
-      let rewards = [];
+  startLiveBonusTimer();
+}
 
-      snap.forEach(doc => {
-        const data = doc.data();
-        const time = data.timestamp?.toDate?.();
-        if (!lastTime && time) lastTime = time;
-        rewards.push({ ...data, time });
-      });
 
-      if (lastTime) {
-        const hoursPassed = (new Date() - lastTime) / (1000 * 60 * 60);
-        const bonusAdd = Math.floor(hoursPassed / 24) * 500;
-        if (total > 5000) total += bonusAdd;
-        else total = 5000;
-      }
 
-      rewards.reverse().forEach(d => {
-        let percent = 0;
-        if (d.type === "Royal Flush") percent = 0.75;
-        if (d.type === "Straight Flush") percent = 0.45;
-        if (d.type === "4 of a Kind") percent = 0.2;
-        const payout = total * percent;
-        total -= payout;
 
-        const img = d.imgUrl ? `<img src='${d.imgUrl}' class='history-img' />` : "";
-        const show = `<div class='history-item'>${img} 📌 ${d.date || "-"} - ${d.player || "-"} (${d.type}) → ฿ ${payout.toFixed(0)}</div>`;
-        html = show + html;
-      });
+    window.showPayoutForm = async () => {
+      const statRef = doc(db, "stats", "highhand");
+      const snap = await getDoc(statRef);
+      const last = snap.data()?.latestPayoutTimestamp?.toDate();
+      const now = new Date();
+      const form = document.getElementById("payoutForm");
+      const msg = document.getElementById("payoutMsg");
+      form.classList.remove("hidden");
 
-      historyList.innerHTML = html || "ไม่มีข้อมูล";
-    }
-
-    window.toggleRewardForm = function () {
-      rewardForm.classList.toggle("hidden");
-    }
-
-    async function calculateBonus() {
-      const rewardSnap = await getDocs(query(collection(db, "highhand_rewards"), orderBy("timestamp", "desc")));
-      let total = 5000;
-      let lastTime = null;
-
-      rewardSnap.forEach(doc => {
-        const data = doc.data();
-        const time = data.timestamp?.toDate?.();
-        if (!lastTime && time) lastTime = time;
-
-        if (data.type === "Royal Flush") total -= total * 0.75;
-        if (data.type === "Straight Flush") total -= total * 0.45;
-        if (data.type === "4 of a Kind") total -= total * 0.2;
-      });
-
-      let bonusAdd = 0;
-      if (lastTime) {
-        const msPassed = new Date() - lastTime;
-        const hoursPassed = msPassed / (1000 * 60 * 60);
-        bonusAdd = Math.floor(hoursPassed / 24) * 500;
-        if (total > 5000) total += bonusAdd;
-        else total = 5000;
-        updateBonusStatus(lastTime, total);
+      if (last && now - last < 24 * 60 * 60 * 1000) {
+        const msLeft = 24 * 60 * 60 * 1000 - (now - last);
+        const hours = Math.floor(msLeft / (60 * 60 * 1000));
+        const minutes = Math.floor((msLeft % (60 * 60 * 1000)) / (60 * 1000));
+        msg.innerText = `ต้องรออีก ${hours} ชั่วโมง ${minutes} นาที ถึงจะจ่ายรางวัลได้อีกครั้ง`;
       } else {
-        bonusStatus.innerText = "⏳ กำลังคำนวณโบนัส...";
+        msg.innerText = "";
+      }
+    };
+
+    window.cancelPayout = () => {
+      document.getElementById("payoutForm").classList.add("hidden");
+      document.getElementById("payoutMsg").innerText = "";
+    };
+
+    window.confirmPayout = async () => {
+      const player = document.getElementById("playerName").value;
+      const type = document.getElementById("handType").value;
+      const rate = BONUS_RATES[type];
+      const amount = Math.floor(window.latestBonus * rate);
+
+      if (!player || !type || isNaN(amount)) {
+        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
       }
 
-      document.getElementById("total-bonus").innerText = `฿ ${total.toFixed(0)}`;
-      document.getElementById("royal-flush").innerText = `฿ ${(total * 0.75).toFixed(0)}`;
-      document.getElementById("straight-flush").innerText = `฿ ${(total * 0.45).toFixed(0)}`;
-      document.getElementById("four-kind").innerText = `฿ ${(total * 0.2).toFixed(0)}`;
-    }
-
-    window.submitReward = async function () {
-      try {
-        const user = auth.currentUser;
-        if (!user) {
-          alert("ยังไม่ได้เข้าสู่ระบบ");
-          return;
-        }
-
-        const snap = await getDocs(query(collection(db, "highhand_rewards"), orderBy("timestamp", "desc")));
-        const last = snap.docs[0]?.data()?.timestamp?.toDate?.();
-        if (last && (new Date() - last) < 24 * 60 * 60 * 1000) {
-          alert("❌ จ่ายรางวัลได้เพียง 1 ครั้งใน 24 ชั่วโมง");
-          return;
-        }
-
-        const player = document.getElementById("reward-player").value;
-        const date = document.getElementById("reward-date").value;
-        const type = document.getElementById("reward-type").value;
-
-        await addDoc(collection(db, "highhand_rewards"), {
-          player,
-          date,
-          type,
-          imageUrl: "",
-          timestamp: serverTimestamp()
-        });
-
-        alert("✅ จ่ายรางวัลสำเร็จแล้ว");
-        rewardForm.classList.add("hidden");
-        calculateBonus();
-      } catch (error) {
-        console.error("🔥 Firestore error:", error);
-        alert("Upload failed: " + error.message);
+      const statRef = doc(db, "stats", "highhand");
+      const snap = await getDoc(statRef);
+      const last = snap.data()?.latestPayoutTimestamp?.toDate();
+      const now = new Date();
+      if (last && now - last < 24 * 60 * 60 * 1000) {
+        alert("ยังไม่ครบ 24 ชั่วโมง ไม่สามารถจ่ายรางวัลได้ในตอนนี้");
+        return;
       }
-    }
-    window.cancelRewardForm = function () {
-  document.getElementById("reward-form").classList.add("hidden");
+
+      await addDoc(collection(db, "highhand_rewards"), {
+        player,
+        handType: type,
+        amountPaid: amount,
+        paidAt: serverTimestamp(),
+        paidBy: window.currentUser.email
+      });
+
+      await updateDoc(statRef, {
+        totalBonus: window.latestBonus - amount,
+        latestPayoutTimestamp: serverTimestamp()
+      });
+
+      document.getElementById("payoutForm").classList.add("hidden");
+      document.getElementById("payoutMsg").innerText = "";
+      await refreshStats();
+      await loadHistory();
+      
+    };
+
+    function loadHistory() {
+  const q = query(collection(db, "highhand_rewards"), orderBy("paidAt", "desc"), limit(10));
+  const historyList = document.getElementById("historyList");
+
+  onSnapshot(q, (snap) => {
+    historyList.innerHTML = "";
+    snap.forEach(doc => {
+      const d = doc.data();
+      const time = d.paidAt?.toDate().toLocaleString();
+      historyList.innerHTML += `<div class='history-entry'>🎖️ ${d.player} ได้ ${d.handType.toUpperCase()} จำนวน ${d.amountPaid} โดย ${d.paidBy} (${time})</div>`;
+    });
+  });
+}
+
+function startLiveBonusTimer() {
+  const el = document.getElementById("totalBonus");
+  const royalEl = document.getElementById("royalBonus");
+  const straightEl = document.getElementById("straightBonus");
+  const quadsEl = document.getElementById("quadsBonus");
+
+  function update() {
+    const now = new Date();
+    const base = window.baseBonus || 5000;
+    const last = window.lastPayoutTime || now;
+    const elapsedMs = now - last;
+    const additional = (elapsedMs / (24 * 60 * 60 * 1000)) * 500;
+    let liveBonus = base + additional;
+    if (liveBonus < 5000) liveBonus = 5000;
+
+    // แสดงผลแบบทศนิยมขยับต่อเนื่อง
+    el.innerText = liveBonus.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    royalEl.innerText = (liveBonus * BONUS_RATES.royal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    straightEl.innerText = (liveBonus * BONUS_RATES.straight).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    quadsEl.innerText = (liveBonus * BONUS_RATES.quads).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // เก็บค่าเต็มไว้ใช้ในการจ่าย
+    window.latestBonus = liveBonus;
+
+    requestAnimationFrame(update);
+  }
+
+  requestAnimationFrame(update);
+}
+
+
+
+
+
+
+window.toggleHistory = () => {
+  const container = document.getElementById("historyContainer");
+  container.classList.toggle("hidden");
 };
-calculateBonus();
-  </script>
+window.login = () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(err => alert("Login error: " + err.message));
+};
 
+  </script>
 </body>
 </html>
