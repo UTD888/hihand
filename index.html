@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonus High Hand</title>
+  <link href="https://fonts.googleapis.com/css2?family=Saira&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Saira', sans-serif;
+      background: #f2f2f2;
+      padding: 10px;
+      margin: 0;
+      text-align:center;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+      
+    }
+    .title {
+      font-size: 45px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .bonus {
+      font-size: 18px;
+      margin: 4px 0;
+      font-size: 40px;
+    }
+    .admin {
+      margin-top: 10px;
+    }
+    .history-entry {
+      border-bottom: 1px solid #ccc;
+      padding: 8px 0;
+    }
+    .hidden {
+      display: none;
+    }
+    #clearHistoryBtn {
+      margin-top: 10px;
+      background: #c00;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    input, select, button {
+  width: 90%;
+  max-width: 320px;
+  padding: 10px;
+  margin: 8px auto;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: block;
+  font-size: 16px;
+}
+
+    #menuIcon {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  background: #333;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1000;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+
+    #loginPopup {
+      position: fixed;
+      top: 50px;
+      right: 10px;
+      width: 280px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.2);
+      display: none;
+      z-index: 1000;
+    }
+  @media (max-width: 480px) {
+  .bonus {
+    font-size: 28px;
+  }
+  input, select, button {
+    font-size: 14px;
+    padding: 8px;
+    width: 100%;
+    max-width: 100%;
+  }
+  .card {
+    padding: 10px;
+  }
+  .title {
+    font-size: 28px;
+  }
+}
+
+
+  </style>
+</head>
+<body onclick="closePopupOnOutside(event)">
+  <div style="text-align: center; margin-bottom: 10px;">
+    <img src="luxu-logo.png" alt="Luxu Logo" width="120" />
+  </div>
+
+  <div id="menuIcon" onclick="toggleLoginPopup(event)">☰</div>
+
+  <div id="loginPopup">
+    <div id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button onclick="loginWithEmail()">🔐 Login</button>
+    </div>
+    <div id="loggedInBox" class="hidden">
+      <span id="userEmail"></span>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  
+
+  <div class="card">
+    <div class="title">Bonus High Hand</div>
+    <div id="currentDateTime" style="color: gray; font-size: 16px; margin-top: -10px; margin-bottom: 10px;"></div>
+    <div class="bonus">Current Bonus: <span id="currentBonus">฿5000</span></div>
+    <div class="bonus">Royal Flush Bonus: <span id="royalBonus">฿3750</span></div>
+    <div class="bonus">Straight Flush Bonus: <span id="straightBonus">฿2250</span></div>
+    <div class="bonus">Quads Cards Bonus: <span id="quadsBonus">฿1000</span></div>
+    <p>การจ่ายรางวัล Hight Hand</p>
+    <p>- 1 ครั้งต่อวัน สำหรับมือที่ดีที่สุดเมื่อถึงเวลาจบเบรก</p>
+    <p>- หากยังไม่มีการจ่ายในวันก่อนหน้า รางวัลรวมจะเพิ่มขึ้นวันละ 500</p>
+    <p>- รางวัลรวมเริ่มต้นที่ 5000 จ่ายรางวัลให้แต่ละแฮนด์ ตามตาราง</p>
+    
+    <div class="admin">
+      <button id="editBonusBtn" class="hidden" onclick="showBonusEdit()">ตั้งค่า Bonus</button>
+      <div id="bonusEditBox" class="hidden">
+        <input type="number" id="newBonus" placeholder="ใส่โบนัสใหม่" />
+        <button onclick="updateBonus()">บันทึก</button>
+      </div>
+      <div id="rewardForm" class="hidden">
+        <div class="title">จ่ายรางวัล</div>
+        <input type="text" id="playerName" placeholder="ชื่อผู้เล่น" />
+        <select id="handType">
+          <option value="">เลือกแฮนด์</option>
+          <option value="Royal Flush">Royal Flush</option>
+          <option value="Straight Flush">Straight Flush</option>
+          <option value="Quads">Quads</option>
+        </select>
+        <input type="file" id="imageUpload" accept="image/*" />
+        <button onclick="submitReward()">จ่ายรางวัล</button>
+
+        <div>
+          <div class="title" onclick="toggleBonusHistory()">Changed History ▼</div>
+          <div id="bonusHistoryContainer" class="hidden">
+            <ul id="bonusHistoryList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title" onclick="toggleHistory()">📜 Bonus History ▼</div>
+    <div id="historyContainer" class="hidden">
+      <div id="historyList"></div>
+      <button id="clearHistoryBtn" class="hidden" onclick="clearHistory()">🗑 ลบประวัติทั้งหมด</button>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtxMJQMwzhZz9QtiHuBlF4L58jRKgI90A",
+      authDomain: "highthand-f9bc6.firebaseapp.com",
+      projectId: "highthand-f9bc6",
+      storageBucket: "highthand-f9bc6.firebasestorage.app",
+      messagingSenderId: "60442905889",
+      appId: "1:60442905889:web:6d1f9f25a03e0a6a5dc260",
+      measurementId: "G-G2CN0QMEJB"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentBonus = 5000;
+
+    function renderBonus() {
+      document.getElementById('currentBonus').innerText = `฿${currentBonus}`;
+      document.getElementById('royalBonus').innerText = `฿${Math.floor(currentBonus * 0.75)}`;
+      document.getElementById('straightBonus').innerText = `฿${Math.floor(currentBonus * 0.45)}`;
+      document.getElementById('quadsBonus').innerText = `฿${Math.floor(currentBonus * 0.2)}`;
+    }
+
+    function showBonusEdit() {
+      document.getElementById('bonusEditBox').classList.toggle('hidden');
+    }
+
+    function toggleHistory() {
+      document.getElementById('historyContainer').classList.toggle('hidden');
+    }
+
+    function toggleBonusHistory() {
+      document.getElementById('bonusHistoryContainer')?.classList.toggle('hidden');
+    }
+
+    async function updateBonus() {
+  const newBonus = parseInt(document.getElementById('newBonus').value);
+  if (isNaN(newBonus) || newBonus < 0) return alert("กรุณาใส่ตัวเลขโบนัสให้ถูกต้อง");
+
+  const oldBonus = currentBonus;
+
+  const confirmed = confirm(`ยืนยันการเปลี่ยน Bonus:\nจาก ฿${oldBonus} → ฿${newBonus}`);
+  if (!confirmed) return;
+
+  try {
+    // บันทึก Bonus ใหม่
+    await db.collection("config").doc("bonus").set({ current: newBonus });
+
+    // บันทึกประวัติ
+    await db.collection("bonus_history").add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      oldBonus,
+      newBonus
+    });
+
+    // ปิดกล่องตั้งค่า + รีเซ็ต
+    document.getElementById('bonusEditBox').classList.add('hidden');
+    document.getElementById('newBonus').value = '';
+
+    alert("อัปเดต Bonus สำเร็จแล้ว");
+    loadBonusHistory();
+  } catch (err) {
+    alert("เกิดข้อผิดพลาดในการอัปเดต Bonus");
+    console.error(err);
+  }
+}
+
+
+  async function submitReward() {
+  const name = document.getElementById('playerName').value;
+  const hand = document.getElementById('handType').value;
+  const file = document.getElementById('imageUpload').files[0];
+  if (!name || !hand || !file) return alert('กรุณากรอกข้อมูลให้ครบ');
+
+  try {
+    // อัปโหลดภาพไป imgbb
+    const formData = new FormData();
+    formData.append("image", file);
+    formData.append("key", "9558962805185271b57918df4e218713");
+    const res = await fetch("https://api.imgbb.com/1/upload", {
+      method: "POST",
+      body: formData
+    });
+    const json = await res.json();
+    const imgUrl = json.data.url;
+
+    // อ่านค่า current bonus
+    const bonusDoc = await db.collection("config").doc("bonus").get();
+    let current = bonusDoc.exists ? bonusDoc.data().current || 5000 : 5000;
+
+    // คำนวณรางวัล
+    let percent = 0;
+    if (hand === "Royal Flush") percent = 0.75;
+    else if (hand === "Straight Flush") percent = 0.45;
+    else if (hand === "Quads") percent = 0.2;
+
+    const amount = Math.floor(current * percent);
+    let newBonus = current - amount;
+    if (newBonus < 5000) newBonus = 5000;
+
+    const confirmText = `ต้องการจ่าย Bonus (${hand}) จำนวน ฿${amount} ให้ ${name} ใช่หรือไม่?`;
+    const confirmed = confirm(confirmText);
+    if (!confirmed) return;
+
+    // บันทึกประวัติรางวัล
+    await db.collection("history").add({
+      name, hand, imgUrl, amount,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // อัปเดตโบนัสใหม่
+    await db.collection("config").doc("bonus").set({ current: newBonus });
+
+    alert(`✅ ทำรายการสำเร็จ\nจ่ายโบนัสจำนวน ฿${amount} แล้ว`);
+    renderBonus();
+    loadHistory();
+  } catch (err) {
+    console.error(err);
+    alert("❌ เกิดข้อผิดพลาดในการทำรายการ");
+  }
+}
+
+
+
+
+    async function clearHistory() {
+      if (!confirm("ยืนยันการลบประวัติทั้งหมด?")) return;
+      const snap = await db.collection("history").get();
+      const batch = db.batch();
+      snap.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      loadHistory();
+    }
+
+    async function loadHistory() {
+  const snap = await db.collection("history").orderBy("timestamp", "desc").get();
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+
+  if (snap.empty) {
+    list.innerHTML = '<div style="color: gray; font-style: italic;">ยังไม่มีรายการ</div>';
+    return;
+  }
+
+  snap.forEach(doc => {
+    const d = doc.data();
+    const date = d.timestamp?.toDate().toLocaleString('th-TH') || "ไม่ทราบเวลา";
+    const div = document.createElement('div');
+    div.className = 'history-entry';
+    div.innerHTML = `
+      <b>${d.name}</b> - ${d.hand}<br>
+      จำนวนที่ได้รับ: ฿${d.amount} <br>
+      เวลา: ${date}<br>
+      <img src="${d.imgUrl}" width="200">
+    `;
+    list.appendChild(div);
+  });
+}
+
+
+
+    function loginWithEmail() {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return alert("กรุณากรอกอีเมลและรหัสผ่าน");
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      document.getElementById("loginPopup").style.display = "none"; // ✅ ปิด popup เมื่อ login สำเร็จ
+    })
+    .catch(err => alert("เข้าสู่ระบบไม่สำเร็จ: " + err.message));
+}
+
+
+    function logout() {
+  auth.signOut().then(() => {
+    document.getElementById("loginPopup").style.display = "none"; // ✅ ปิด popup เมื่อ logout
+  });
+}
+
+
+    auth.onAuthStateChanged(user => {
+      const emailSpan = document.getElementById("userEmail");
+      const loginForm = document.getElementById("loginForm");
+      const loggedInBox = document.getElementById("loggedInBox");
+      const clearBtn = document.getElementById("clearHistoryBtn");
+
+      if (user) {
+        emailSpan.textContent = user.email;
+        loginForm.classList.add("hidden");
+        loggedInBox.classList.remove("hidden");
+
+        document.getElementById("editBonusBtn").classList.remove("hidden");
+        document.getElementById("rewardForm").classList.remove("hidden");
+        clearBtn.classList.remove("hidden");
+      } else {
+        emailSpan.textContent = "";
+        loginForm.classList.remove("hidden");
+        loggedInBox.classList.add("hidden");
+        document.getElementById("editBonusBtn").classList.add("hidden");
+        document.getElementById("rewardForm").classList.add("hidden");
+        clearBtn.classList.add("hidden");
+      }
+    });
+
+    db.collection("config").doc("bonus").onSnapshot(doc => {
+  if (doc.exists) {
+    currentBonus = doc.data().current || 5000;
+    renderBonus();
+  }
+});
+
+
+    renderBonus();
+    loadHistory();
+    loadBonusHistory();
+
+  async function loadBonusHistory() {
+  const snap = await db.collection("bonus_history").orderBy("timestamp", "desc").get();
+  const list = document.getElementById("bonusHistoryList");
+  list.innerHTML = '';
+
+  snap.forEach(doc => {
+    const d = doc.data();
+    const date = d.timestamp?.toDate().toLocaleString('th-TH') || "ไม่ทราบเวลา";
+    const li = document.createElement('li');
+    li.textContent = `${date} - จาก ฿${d.oldBonus} → ฿${d.newBonus}`;
+    list.appendChild(li);
+  });
+}
+function updateDateTime() {
+  const now = new Date();
+  const options = { dateStyle: 'short', timeStyle: 'medium', hour12: false };
+  const formatted = now.toLocaleString('th-TH', options);
+  document.getElementById('currentDateTime').textContent = `📅 ${formatted}`;
+}
+setInterval(updateDateTime, 1000);
+updateDateTime(); // แสดงทันทีเมื่อโหลด
+
+function toggleLoginPopup(event) {
+      event.stopPropagation(); // กันไม่ให้คลิกหลุดปิดทันที
+      const popup = document.getElementById("loginPopup");
+      popup.style.display = popup.style.display === 'none' || popup.style.display === '' ? 'block' : 'none';
+    }
+
+    function closePopupOnOutside(event) {
+      const popup = document.getElementById("loginPopup");
+      const menuIcon = document.getElementById("menuIcon");
+      if (!popup.contains(event.target) && !menuIcon.contains(event.target)) {
+        popup.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
